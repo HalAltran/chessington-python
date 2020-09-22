@@ -14,6 +14,7 @@ class Piece(ABC):
 
     def __init__(self, player):
         self.player = player
+        self.has_moved = False
 
     @abstractmethod
     def get_available_moves(self, board):
@@ -28,6 +29,7 @@ class Piece(ABC):
         """
         current_square = board.find_piece(self)
         board.move_piece(current_square, new_square)
+        self.has_moved = True
 
 
 class Pawn(Piece):
@@ -40,6 +42,11 @@ class Pawn(Piece):
 
         available_moves = [Square.at(current_square.row - 1, current_square.col),
                            Square.at(current_square.row + 1, current_square.col)]
+
+        if not self.has_moved:
+            available_moves.append(Square.at(current_square.row - 2, current_square.col))
+            available_moves.append(Square.at(current_square.row + 2, current_square.col))
+
         return available_moves
 
 
