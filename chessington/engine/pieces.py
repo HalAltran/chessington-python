@@ -1,7 +1,6 @@
 """
 Definitions of each of the different chess pieces.
 """
-
 from abc import ABC, abstractmethod
 
 from chessington.engine.data import Player, Square
@@ -42,14 +41,26 @@ class Pawn(Piece):
 
         available_moves = []
 
-        if not board.piece_in_front(self, 1):
+        if not self.at_end_of_board(current_square) and not self.piece_in_front(board, 1):
             available_moves.append(Square.at(current_square.row - 1, current_square.col))
             available_moves.append(Square.at(current_square.row + 1, current_square.col))
-            if not self.has_moved and not board.piece_in_front(self, 2):
+            if not self.has_moved and not self.piece_in_front(board, 2):
                 available_moves.append(Square.at(current_square.row - 2, current_square.col))
                 available_moves.append(Square.at(current_square.row + 2, current_square.col))
 
         return available_moves
+
+    def at_end_of_board(self, current_square):
+        if self.player == Player.WHITE:
+            return current_square.row == 7
+        return current_square.row == 0
+
+    def piece_in_front(self, board, distance):
+        offset = distance
+        if self.player == Player.BLACK:
+            offset = offset * - 1
+        current_square = board.find_piece(self)
+        return not board.board[current_square.row + offset][current_square.col] is None
 
 
 class Knight(Piece):

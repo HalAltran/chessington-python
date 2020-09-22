@@ -78,10 +78,3 @@ class Board:
             self.set_piece(to_square, moving_piece)
             self.set_piece(from_square, None)
             self.current_player = self.current_player.opponent()
-
-    def piece_in_front(self, piece, distance):
-        offset = distance
-        if piece.player == Player.BLACK:
-            offset = offset * - 1
-        current_square = self.find_piece(piece)
-        return not self.board[current_square.row + offset][current_square.col] is None
