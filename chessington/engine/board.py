@@ -8,6 +8,7 @@ from chessington.engine.pieces import Pawn, Knight, Bishop, Rook, Queen, King
 
 BOARD_SIZE = 8
 
+
 class Board:
     """
     A representation of the chess board, and the pieces on it.

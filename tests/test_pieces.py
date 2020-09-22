@@ -2,6 +2,7 @@ from chessington.engine.board import Board
 from chessington.engine.data import Player, Square
 from chessington.engine.pieces import Pawn
 
+
 class TestPawns:
 
     @staticmethod
@@ -33,3 +34,6 @@ class TestPawns:
 
         # Assert
         assert Square.at(5, 4) in moves
+
+
+TestPawns.test_white_pawns_can_move_up_one_square()
