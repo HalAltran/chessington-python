@@ -4,6 +4,7 @@ Data classes for easy representation of concepts such as a square on the board o
 from dataclasses import dataclass
 from enum import Enum, auto
 
+
 class Player(Enum):
     """
     The two players in a game of chess.
@@ -12,8 +13,10 @@ class Player(Enum):
     BLACK = auto()
 
     def opponent(self):
-        if self == Player.WHITE: return Player.BLACK
-        else: return Player.WHITE
+        if self == Player.WHITE:
+            return Player.BLACK
+        else:
+            return Player.WHITE
 
 
 @dataclass(frozen=True)

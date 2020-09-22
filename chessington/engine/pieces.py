@@ -40,12 +40,14 @@ class Pawn(Piece):
     def get_available_moves(self, board):
         current_square = board.find_piece(self)
 
-        available_moves = [Square.at(current_square.row - 1, current_square.col),
-                           Square.at(current_square.row + 1, current_square.col)]
+        available_moves = []
 
-        if not self.has_moved:
-            available_moves.append(Square.at(current_square.row - 2, current_square.col))
-            available_moves.append(Square.at(current_square.row + 2, current_square.col))
+        if not board.piece_in_front(self, 1):
+            available_moves.append(Square.at(current_square.row - 1, current_square.col))
+            available_moves.append(Square.at(current_square.row + 1, current_square.col))
+            if not self.has_moved and not board.piece_in_front(self, 2):
+                available_moves.append(Square.at(current_square.row - 2, current_square.col))
+                available_moves.append(Square.at(current_square.row + 2, current_square.col))
 
         return available_moves
 
