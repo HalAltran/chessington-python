@@ -244,7 +244,7 @@ class TestPawns:
 
         # Assert
         assert len(moves) == 0
-        
+
     @staticmethod
     def test_white_pawns_can_capture_diagonally():
 

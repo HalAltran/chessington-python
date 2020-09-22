@@ -33,3 +33,6 @@ class Square:
         """
 
         return cls(row=row, col=col)
+
+    def is_on_board(self):
+        return 0 <= self.row < 8 and 0 <= self.col < 8

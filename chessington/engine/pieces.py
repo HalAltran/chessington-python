@@ -30,6 +30,11 @@ class Piece(ABC):
         board.move_piece(current_square, new_square)
         self.has_moved = True
 
+    def reverse_direction_if_black(self, distance):
+        if self.player == Player.BLACK:
+            return distance * - 1
+        return distance
+
 
 class Pawn(Piece):
     """
@@ -41,12 +46,22 @@ class Pawn(Piece):
 
         available_moves = []
 
-        if not self.at_end_of_board(current_square) and not self.piece_in_front(board, 1):
-            available_moves.append(Square.at(current_square.row - 1, current_square.col))
-            available_moves.append(Square.at(current_square.row + 1, current_square.col))
-            if not self.has_moved and not self.piece_in_front(board, 2):
-                available_moves.append(Square.at(current_square.row - 2, current_square.col))
-                available_moves.append(Square.at(current_square.row + 2, current_square.col))
+        offset = self.reverse_direction_if_black(1)
+
+        if not self.at_end_of_board(current_square) and not self.piece_in_front(board, offset):
+            available_moves.append(Square.at(current_square.row + offset, current_square.col))
+            if not self.has_moved and not self.piece_in_front(board, offset * 2):
+                available_moves.append(Square.at(current_square.row + offset * 2, current_square.col))
+
+        if not self.at_end_of_board(current_square):
+            diagonal_in_front_squares = [Square.at(current_square.row + offset, current_square.col + 1),
+                                         Square.at(current_square.row + offset, current_square.col - 1)]
+
+            for square in diagonal_in_front_squares:
+                if square.is_on_board():
+                    piece_on_square = board.get_piece(square)
+                    if piece_on_square is not None and piece_on_square.player != self.player:
+                        available_moves.append(square)
 
         return available_moves
 
@@ -55,10 +70,7 @@ class Pawn(Piece):
             return current_square.row == 7
         return current_square.row == 0
 
-    def piece_in_front(self, board, distance):
-        offset = distance
-        if self.player == Player.BLACK:
-            offset = offset * - 1
+    def piece_in_front(self, board, offset):
         current_square = board.find_piece(self)
         return not board.board[current_square.row + offset][current_square.col] is None
 
