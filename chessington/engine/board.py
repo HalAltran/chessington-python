@@ -78,3 +78,10 @@ class Board:
             self.set_piece(to_square, moving_piece)
             self.set_piece(from_square, None)
             self.current_player = self.current_player.opponent()
+
+    def square_contains_opponent(self, square, player):
+        piece_on_square = self.get_piece(square)
+        return piece_on_square is not None and piece_on_square.player != player
+
+    def square_is_empty(self, square):
+        return self.get_piece(square) is None
