@@ -2,8 +2,8 @@
 A module providing a representation of a chess board. The rules of chess are not implemented - 
 this is just a "dumb" board that will let you move pieces around as you like.
 """
-
-from chessington.engine.data import Player, Square
+from copy import deepcopy
+from chessington.engine.data import Player, Square, Move
 from chessington.engine.pieces import Pawn, Knight, Bishop, Rook, Queen, King
 
 BOARD_SIZE = 8
@@ -17,6 +17,7 @@ class Board:
     def __init__(self, player, board_state):
         self.current_player = Player.WHITE
         self.board = board_state
+        self.move_list = []
 
     @staticmethod
     def empty():
@@ -78,6 +79,9 @@ class Board:
             self.set_piece(to_square, moving_piece)
             self.set_piece(from_square, None)
             self.current_player = self.current_player.opponent()
+            self.move_list.append(Move(deepcopy(moving_piece), from_square, to_square))
+
+        # if last move was en passant, remove the pawn from the board.
 
     def square_contains_opponent(self, square, player):
         piece_on_square = self.get_piece(square)

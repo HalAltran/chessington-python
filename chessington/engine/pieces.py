@@ -120,10 +120,10 @@ class Pawn(Piece):
         current_square = board.find_piece(self)
 
         square_in_front = Square.at(current_square.row + direction, current_square.col)
-        if square_in_front.is_on_board() and board.get_piece(square_in_front) is None:
+        if square_in_front.is_on_board() and board.square_is_empty(square_in_front):
             straight_moves.append(square_in_front)
             square_two_in_front = Square.at(current_square.row + direction * 2, current_square.col)
-            if not self.has_moved and board.get_piece(square_two_in_front) is None:
+            if not self.has_moved and board.square_is_empty(square_two_in_front):
                 straight_moves.append(square_two_in_front)
 
         return straight_moves
@@ -141,7 +141,18 @@ class Pawn(Piece):
         for square in diagonal_moves:
             if board.square_contains_opponent(square, self.player):
                 attacking_diagonal_moves.append(square)
+            elif len(board.move_list) > 0 and self.en_passant_possible(board, current_square, square):
+                attacking_diagonal_moves.append(square)
         return attacking_diagonal_moves
+
+    @staticmethod
+    def en_passant_possible(board, current_square, diagonal_square):
+        last_move = board.move_list[-1]
+        is_pawn = isinstance(last_move.piece, Pawn)
+        same_col = last_move.square_to.col == diagonal_square.col
+        same_row = last_move.square_to.row == current_square.row
+
+        return is_pawn and same_col and same_row and last_move.vertical_distance_moved() == 2
 
 
 class Knight(Piece):

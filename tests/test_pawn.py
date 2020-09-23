@@ -332,3 +332,28 @@ class TestPawns:
         # Assert
         assert Square.at(2, 3) not in moves
         assert Square.at(2, 5) not in moves
+
+    @staticmethod
+    def test_en_passant():
+        # Arrange
+        board = Board.empty()
+        pawn_a = Pawn(Player.WHITE)
+        from_square = Square.at(1, 4)
+        board.set_piece(from_square, pawn_a)
+
+        pawn_b = Pawn(Player.BLACK)
+        board.set_piece(Square.at(3, 5), pawn_b)
+
+        # Act
+        a_moves = pawn_a.get_available_moves(board)
+
+        to_square = Square.at(3, 4)
+
+        # Assert
+        assert to_square in a_moves
+
+        board.move_piece(from_square, to_square)
+
+        b_moves = pawn_b.get_available_moves(board)
+
+        assert Square.at(2, 4) in b_moves
