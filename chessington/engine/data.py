@@ -52,9 +52,13 @@ class Move:
         return abs(self.square_to.row - self.square_from.row)
 
     def horizontal_distance_moved(self):
-        return abs(self.square_to.col - self.square_from.col)
+        return self.square_to.col - self.square_from.col
 
     def is_en_passant(self):
         import chessington.engine.pieces as pieces
         return isinstance(self.attacking_piece, pieces.Pawn) and self.defending_piece is None \
                and self.horizontal_distance_moved() != 0
+
+    def is_castle(self):
+        import chessington.engine.pieces as pieces
+        return isinstance(self.attacking_piece, pieces.King) and abs(self.horizontal_distance_moved()) == 2

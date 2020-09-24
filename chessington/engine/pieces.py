@@ -222,5 +222,37 @@ class King(Piece):
 
         available_moves = self.get_straight_moves(board, current_square, 1)
         available_moves.extend(self.get_diagonal_moves(board, current_square, 1))
+        available_moves.extend(self.get_castle_moves(board, current_square))
 
         return available_moves
+
+    def get_castle_moves(self, board, current_square):
+        castle_moves = []
+
+        if self.can_castle_king_side(board, current_square):
+            castle_moves.append(Square.at(current_square.row, current_square.col + 2))
+        if self.can_castle_queen_side(board, current_square):
+            castle_moves.append(Square.at(current_square.row, current_square.col - 2))
+
+        return castle_moves
+
+    def can_castle_king_side(self, board, current_square):
+        return self.can_castle(board, current_square, 3)
+
+    def can_castle_queen_side(self, board, current_square):
+        return self.can_castle(board, current_square, -4)
+
+    def can_castle(self, board, current_square, distance_to_rook):
+        if self.has_moved:
+            return False
+        direction = 1
+        if distance_to_rook < 0:
+            direction = - 1
+        rook_column = current_square.col + distance_to_rook
+        rook_square = Square.at(current_square.row, rook_column)
+        rook = board.get_piece(rook_square)
+        if not isinstance(rook, Rook):
+            return False
+        castle_squares = self.get_moves_in_direction(board, current_square, 1 * direction, 0, abs(distance_to_rook))
+        castle_squares_are_empty = len(castle_squares) == abs(distance_to_rook) - 1
+        return not rook.has_moved and castle_squares_are_empty

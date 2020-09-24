@@ -83,10 +83,24 @@ class Board:
             self.move_list.append(Move(deepcopy(moving_piece), piece_under_attack, from_square, to_square))
 
             self.remove_en_passant_pawn()
+            self.castle_rook()
 
     def remove_en_passant_pawn(self):
         if self.move_list[-1].is_en_passant():
             self.set_piece(self.move_list[-2].square_to, None)
+
+    def castle_rook(self):
+        last_move = self.move_list[-1]
+        if last_move.is_castle():
+            if last_move.horizontal_distance_moved() > 0:
+                rook_square_from = Square.at(last_move.square_to.row, last_move.square_to.col + 1)
+                rook_square_to = Square.at(last_move.square_to.row, last_move.square_to.col - 1)
+            else:
+                rook_square_from = Square.at(last_move.square_to.row, last_move.square_to.col - 2)
+                rook_square_to = Square.at(last_move.square_to.row, last_move.square_to.col + 1)
+
+            self.set_piece(rook_square_to, self.get_piece(rook_square_from))
+            self.set_piece(rook_square_from, None)
 
     def square_contains_opponent(self, square, player):
         piece_on_square = self.get_piece(square)
