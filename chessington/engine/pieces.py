@@ -152,7 +152,7 @@ class Pawn(Piece):
         same_col = last_move.square_to.col == diagonal_square.col
         same_row = last_move.square_to.row == current_square.row
 
-        return is_pawn and same_col and same_row and last_move.vertical_distance_moved() == 2
+        return is_pawn and same_col and same_row and abs(last_move.vertical_distance_moved()) == 2
 
 
 class Knight(Piece):

@@ -49,7 +49,7 @@ class Move:
         self.square_to = square_to
 
     def vertical_distance_moved(self):
-        return abs(self.square_to.row - self.square_from.row)
+        return self.square_to.row - self.square_from.row
 
     def horizontal_distance_moved(self):
         return self.square_to.col - self.square_from.col
@@ -62,3 +62,12 @@ class Move:
     def is_castle(self):
         import chessington.engine.pieces as pieces
         return isinstance(self.attacking_piece, pieces.King) and abs(self.horizontal_distance_moved()) == 2
+
+    def is_pawn_promotion(self):
+        import chessington.engine.pieces as pieces
+        if isinstance(self.attacking_piece, pieces.Pawn):
+            if self.vertical_distance_moved() > 0:
+                return self.square_to.row == board_module.BOARD_SIZE - 1
+            else:
+                return self.square_to.row == 0
+        return False

@@ -79,11 +79,14 @@ class Board:
             piece_under_attack = deepcopy(self.get_piece(to_square))
             self.set_piece(to_square, moving_piece)
             self.set_piece(from_square, None)
-            self.current_player = self.current_player.opponent()
+
             self.move_list.append(Move(deepcopy(moving_piece), piece_under_attack, from_square, to_square))
 
             self.remove_en_passant_pawn()
             self.castle_rook()
+            self.promote_pawn()
+
+            self.current_player = self.current_player.opponent()
 
     def remove_en_passant_pawn(self):
         if self.move_list[-1].is_en_passant():
@@ -102,9 +105,17 @@ class Board:
             self.set_piece(rook_square_to, self.get_piece(rook_square_from))
             self.set_piece(rook_square_from, None)
 
+    def promote_pawn(self):
+        last_move = self.move_list[-1]
+        if last_move.is_pawn_promotion():
+            self.set_piece(last_move.square_to, Queen(self.current_player))
+
     def square_contains_opponent(self, square, player):
         piece_on_square = self.get_piece(square)
         return piece_on_square is not None and piece_on_square.player != player
 
     def square_is_empty(self, square):
         return self.get_piece(square) is None
+
+    def king_is_in_check(self):
+        pass
