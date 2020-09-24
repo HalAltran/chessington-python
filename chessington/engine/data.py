@@ -42,10 +42,19 @@ class Square:
 
 class Move:
 
-    def __init__(self, piece, square_from, square_to):
-        self.piece = piece
+    def __init__(self, attacking_piece, defending_piece, square_from, square_to):
+        self.attacking_piece = attacking_piece
+        self.defending_piece = defending_piece
         self.square_from = square_from
         self.square_to = square_to
 
     def vertical_distance_moved(self):
         return abs(self.square_to.row - self.square_from.row)
+
+    def horizontal_distance_moved(self):
+        return abs(self.square_to.col - self.square_from.col)
+
+    def is_en_passant(self):
+        import chessington.engine.pieces as pieces
+        return isinstance(self.attacking_piece, pieces.Pawn) and self.defending_piece is None \
+               and self.horizontal_distance_moved() != 0

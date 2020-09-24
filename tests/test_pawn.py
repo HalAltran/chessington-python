@@ -337,23 +337,30 @@ class TestPawns:
     def test_en_passant():
         # Arrange
         board = Board.empty()
-        pawn_a = Pawn(Player.WHITE)
-        from_square = Square.at(1, 4)
-        board.set_piece(from_square, pawn_a)
+        defending_pawn = Pawn(Player.WHITE)
+        defending_pawn_square_1 = Square.at(1, 4)
+        board.set_piece(defending_pawn_square_1, defending_pawn)
 
-        pawn_b = Pawn(Player.BLACK)
-        board.set_piece(Square.at(3, 5), pawn_b)
+        attacking_pawn = Pawn(Player.BLACK)
+        attacking_pawn_square_1 = Square.at(3, 5)
+        board.set_piece(attacking_pawn_square_1, attacking_pawn)
 
         # Act
-        a_moves = pawn_a.get_available_moves(board)
+        defending_pawn_moves_1 = defending_pawn.get_available_moves(board)
 
-        to_square = Square.at(3, 4)
+        defending_pawn_square_2 = Square.at(3, 4)
 
         # Assert
-        assert to_square in a_moves
+        assert defending_pawn_square_2 in defending_pawn_moves_1
 
-        board.move_piece(from_square, to_square)
+        board.move_piece(defending_pawn_square_1, defending_pawn_square_2)
 
-        b_moves = pawn_b.get_available_moves(board)
+        attacking_pawn_moves_1 = attacking_pawn.get_available_moves(board)
 
-        assert Square.at(2, 4) in b_moves
+        en_passant_square = Square.at(2, 4)
+
+        assert en_passant_square in attacking_pawn_moves_1
+
+        board.move_piece(attacking_pawn_square_1, en_passant_square)
+
+        assert board.get_piece(defending_pawn_square_2) is None

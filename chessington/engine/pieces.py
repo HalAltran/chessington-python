@@ -148,7 +148,7 @@ class Pawn(Piece):
     @staticmethod
     def en_passant_possible(board, current_square, diagonal_square):
         last_move = board.move_list[-1]
-        is_pawn = isinstance(last_move.piece, Pawn)
+        is_pawn = isinstance(last_move.attacking_piece, Pawn)
         same_col = last_move.square_to.col == diagonal_square.col
         same_row = last_move.square_to.row == current_square.row
 

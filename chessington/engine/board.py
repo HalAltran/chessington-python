@@ -76,12 +76,17 @@ class Board:
         """
         moving_piece = self.get_piece(from_square)
         if moving_piece is not None and moving_piece.player == self.current_player:
+            piece_under_attack = deepcopy(self.get_piece(to_square))
             self.set_piece(to_square, moving_piece)
             self.set_piece(from_square, None)
             self.current_player = self.current_player.opponent()
-            self.move_list.append(Move(deepcopy(moving_piece), from_square, to_square))
+            self.move_list.append(Move(deepcopy(moving_piece), piece_under_attack, from_square, to_square))
 
-        # if last move was en passant, remove the pawn from the board.
+            self.remove_en_passant_pawn()
+
+    def remove_en_passant_pawn(self):
+        if self.move_list[-1].is_en_passant():
+            self.set_piece(self.move_list[-2].square_to, None)
 
     def square_contains_opponent(self, square, player):
         piece_on_square = self.get_piece(square)
