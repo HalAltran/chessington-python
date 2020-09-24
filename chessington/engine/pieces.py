@@ -18,11 +18,18 @@ class Piece(ABC):
         self.player = player
         self.has_moved = False
 
-    @abstractmethod
     def get_available_moves(self, board):
         """
         Get all squares that the piece is allowed to move to.
         """
+        available_moves = self.get_piece_specific_moves(board)
+
+        if board.primary_board:
+            return self.remove_moves_that_leave_self_in_check(board, board.find_piece(self), available_moves)
+        return available_moves
+
+    @abstractmethod
+    def get_piece_specific_moves(self, board):
         pass
 
     def move_to(self, board, new_square):
@@ -114,7 +121,7 @@ class Pawn(Piece):
     A class representing a chess pawn.
     """
 
-    def get_available_moves(self, board):
+    def get_piece_specific_moves(self, board):
 
         available_moves = []
 
@@ -125,14 +132,10 @@ class Pawn(Piece):
         available_moves.extend(self.get_pawn_straight_moves(board, current_square, direction))
         available_moves.extend(self.get_pawn_diagonal_moves(board, current_square, direction))
 
-        if board.primary_board:
-            self.remove_moves_that_leave_self_in_check(board, current_square, available_moves)
         return available_moves
 
     def get_pawn_straight_moves(self, board, current_square, direction):
         straight_moves = []
-
-        # current_square = board.find_piece(self)
 
         square_in_front = Square.at(current_square.row + direction, current_square.col)
         if square_in_front.is_on_board() and board.square_is_empty(square_in_front):
@@ -144,8 +147,6 @@ class Pawn(Piece):
         return straight_moves
 
     def get_pawn_diagonal_moves(self, board, current_square, direction):
-        # current_square = board.find_piece(self)
-
         diagonal_moves = []
 
         diagonal_moves.extend(self.get_moves_in_direction(board, current_square, 1, direction, 1))
@@ -175,7 +176,7 @@ class Knight(Piece):
     A class representing a chess knight.
     """
 
-    def get_available_moves(self, board):
+    def get_piece_specific_moves(self, board):
 
         available_moves = []
 
@@ -188,8 +189,6 @@ class Knight(Piece):
                 if self.abs_not_equal(i, j):
                     available_moves.extend(self.get_moves_in_direction(board, current_square, i, j, 1))
 
-        if board.primary_board:
-            self.remove_moves_that_leave_self_in_check(board, current_square, available_moves)
         return available_moves
 
     @staticmethod
@@ -202,12 +201,8 @@ class Bishop(Piece):
     A class representing a chess bishop.
     """
 
-    def get_available_moves(self, board):
-        current_square = board.find_piece(self)
-        available_moves = self.get_diagonal_moves(board, current_square, board_module.BOARD_SIZE)
-        if board.primary_board:
-            self.remove_moves_that_leave_self_in_check(board, current_square, available_moves)
-        return available_moves
+    def get_piece_specific_moves(self, board):
+        return self.get_diagonal_moves(board, board.find_piece(self), board_module.BOARD_SIZE)
 
 
 class Rook(Piece):
@@ -215,12 +210,8 @@ class Rook(Piece):
     A class representing a chess rook.
     """
 
-    def get_available_moves(self, board):
-        current_square = board.find_piece(self)
-        available_moves = self.get_straight_moves(board, current_square, board_module.BOARD_SIZE)
-        if board.primary_board:
-            self.remove_moves_that_leave_self_in_check(board, current_square, available_moves)
-        return available_moves
+    def get_piece_specific_moves(self, board):
+        return self.get_straight_moves(board, board.find_piece(self), board_module.BOARD_SIZE)
 
 
 class Queen(Piece):
@@ -228,14 +219,12 @@ class Queen(Piece):
     A class representing a chess queen.
     """
 
-    def get_available_moves(self, board):
+    def get_piece_specific_moves(self, board):
         current_square = board.find_piece(self)
 
         available_moves = self.get_straight_moves(board, current_square, board_module.BOARD_SIZE)
         available_moves.extend(self.get_diagonal_moves(board, current_square, board_module.BOARD_SIZE))
 
-        if board.primary_board:
-            self.remove_moves_that_leave_self_in_check(board, current_square, available_moves)
         return available_moves
 
 
@@ -244,15 +233,13 @@ class King(Piece):
     A class representing a chess king.
     """
 
-    def get_available_moves(self, board):
+    def get_piece_specific_moves(self, board):
         current_square = board.find_piece(self)
 
         available_moves = self.get_straight_moves(board, current_square, 1)
         available_moves.extend(self.get_diagonal_moves(board, current_square, 1))
         available_moves.extend(self.get_castle_moves(board, current_square))
 
-        if board.primary_board:
-            self.remove_moves_that_leave_self_in_check(board, current_square, available_moves)
         return available_moves
 
     def get_castle_moves(self, board, current_square):
