@@ -18,6 +18,7 @@ class Board:
         self.current_player = Player.WHITE
         self.board = board_state
         self.move_list = []
+        self.primary_board = True
 
     @staticmethod
     def empty():
@@ -118,4 +119,26 @@ class Board:
         return self.get_piece(square) is None
 
     def king_is_in_check(self):
-        pass
+        all_squares = self.get_all_squares()
+        opposing_pieces = []
+        current_king_square = None
+        for square in all_squares:
+            piece = self.get_piece(square)
+            if piece is not None and piece.player == self.current_player:
+                opposing_pieces.append(piece)
+            if isinstance(piece, King) and piece.player != self.current_player:
+                current_king_square = square
+        if current_king_square is None:
+            return False
+        for piece in opposing_pieces:
+            if current_king_square in piece.get_available_moves(self):
+                return True
+        return False
+
+    @staticmethod
+    def get_all_squares():
+        all_squares = []
+        for row in range(BOARD_SIZE):
+            for col in range(BOARD_SIZE):
+                all_squares.append(Square.at(row, col))
+        return all_squares

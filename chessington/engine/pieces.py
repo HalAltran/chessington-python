@@ -4,6 +4,7 @@ Definitions of each of the different chess pieces.
 import chessington.engine.board as board_module
 
 from abc import ABC, abstractmethod
+from copy import deepcopy
 
 from chessington.engine.data import Player, Square
 
@@ -97,6 +98,16 @@ class Piece(ABC):
 
         return directional_squares
 
+    @staticmethod
+    def remove_moves_that_leave_self_in_check(board, current_square, available_moves):
+        for move in list(available_moves):
+            board_copy = deepcopy(board)
+            board_copy.primary_board = False
+            board_copy.move_piece(current_square, move)
+            if board_copy.king_is_in_check():
+                available_moves.remove(move)
+        return available_moves
+
 
 class Pawn(Piece):
     """
@@ -109,15 +120,19 @@ class Pawn(Piece):
 
         direction = self.reverse_direction_if_black(1)
 
-        available_moves.extend(self.get_pawn_straight_moves(board, direction))
-        available_moves.extend(self.get_pawn_diagonal_moves(board, direction))
+        current_square = board.find_piece(self)
 
+        available_moves.extend(self.get_pawn_straight_moves(board, current_square, direction))
+        available_moves.extend(self.get_pawn_diagonal_moves(board, current_square, direction))
+
+        if board.primary_board:
+            self.remove_moves_that_leave_self_in_check(board, current_square, available_moves)
         return available_moves
 
-    def get_pawn_straight_moves(self, board, direction):
+    def get_pawn_straight_moves(self, board, current_square, direction):
         straight_moves = []
 
-        current_square = board.find_piece(self)
+        # current_square = board.find_piece(self)
 
         square_in_front = Square.at(current_square.row + direction, current_square.col)
         if square_in_front.is_on_board() and board.square_is_empty(square_in_front):
@@ -128,8 +143,8 @@ class Pawn(Piece):
 
         return straight_moves
 
-    def get_pawn_diagonal_moves(self, board, direction):
-        current_square = board.find_piece(self)
+    def get_pawn_diagonal_moves(self, board, current_square, direction):
+        # current_square = board.find_piece(self)
 
         diagonal_moves = []
 
@@ -173,6 +188,8 @@ class Knight(Piece):
                 if self.abs_not_equal(i, j):
                     available_moves.extend(self.get_moves_in_direction(board, current_square, i, j, 1))
 
+        if board.primary_board:
+            self.remove_moves_that_leave_self_in_check(board, current_square, available_moves)
         return available_moves
 
     @staticmethod
@@ -186,7 +203,11 @@ class Bishop(Piece):
     """
 
     def get_available_moves(self, board):
-        return self.get_diagonal_moves(board, board.find_piece(self), board_module.BOARD_SIZE)
+        current_square = board.find_piece(self)
+        available_moves = self.get_diagonal_moves(board, current_square, board_module.BOARD_SIZE)
+        if board.primary_board:
+            self.remove_moves_that_leave_self_in_check(board, current_square, available_moves)
+        return available_moves
 
 
 class Rook(Piece):
@@ -195,7 +216,11 @@ class Rook(Piece):
     """
 
     def get_available_moves(self, board):
-        return self.get_straight_moves(board, board.find_piece(self), board_module.BOARD_SIZE)
+        current_square = board.find_piece(self)
+        available_moves = self.get_straight_moves(board, current_square, board_module.BOARD_SIZE)
+        if board.primary_board:
+            self.remove_moves_that_leave_self_in_check(board, current_square, available_moves)
+        return available_moves
 
 
 class Queen(Piece):
@@ -209,6 +234,8 @@ class Queen(Piece):
         available_moves = self.get_straight_moves(board, current_square, board_module.BOARD_SIZE)
         available_moves.extend(self.get_diagonal_moves(board, current_square, board_module.BOARD_SIZE))
 
+        if board.primary_board:
+            self.remove_moves_that_leave_self_in_check(board, current_square, available_moves)
         return available_moves
 
 
@@ -224,6 +251,8 @@ class King(Piece):
         available_moves.extend(self.get_diagonal_moves(board, current_square, 1))
         available_moves.extend(self.get_castle_moves(board, current_square))
 
+        if board.primary_board:
+            self.remove_moves_that_leave_self_in_check(board, current_square, available_moves)
         return available_moves
 
     def get_castle_moves(self, board, current_square):
